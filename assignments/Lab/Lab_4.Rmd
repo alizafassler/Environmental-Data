@@ -1,0 +1,191 @@
+---
+title: "Lab 4"
+author: "Aliza Fassler"
+date: "9/29/2021"
+output: html_document
+---
+I worked with Justin Roch, Joshua Driscoll and Abby Guinan on this lab.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(here)
+line_point_slope = function(x, x1, y1, slope)
+{
+  get_y_intercept = 
+    function(x1, y1, slope) 
+      return(-(x1 * slope) + y1)
+  
+  linear = 
+    function(x, yint, slope) 
+      return(yint + x * slope)
+  
+  return(linear(x, get_y_intercept(x1, y1, slope), slope))
+}
+```
+
+
+```{r, include=FALSE}
+set.seed(1)
+dat_unif_1 = runif(n = 270, min = 0, max = 4)
+set.seed(4000)
+dat_unif_2 = runif(n = 270, min = 0, max = 4)
+
+par(mfrow = c(1, 2))
+hist(dat_unif_1)
+hist(dat_unif_2)
+```
+
+
+
+# **Q1 Vector Code**
+
+**(1 pt.) Show the code you used to create your vectors**
+```{r}
+norm_17 = rnorm(17, mean = 10.4, sd = 2.4)
+norm_30 = rnorm(30, mean = 10.4, sd = 2.4)
+norm_300 = rnorm(300, mean = 10.4, sd = 2.4)
+norm_3000 = rnorm(3000, mean = 10.4, sd = 2.4)
+```
+
+# **Q2 Histogram Code**
+
+**(2 pts.) Include the R code you used to create your figure. Your answer should include code that builds the figure as well as saves it to a file.**
+
+```{r}
+
+png(filename = here("images","lab_04_hist_01.png"), width = 1500, height = 1600, res = 180, units = "px")
+par(mfrow = c(2,2))
+hist(norm_17, main = "Norm 17")
+hist(norm_30, main = "Norm 30")
+hist(norm_300, main = "Norm 300")
+hist(norm_3000, main = "Norm 3000")
+dev.off()
+```
+
+
+# **Q3 Histogram Figure**
+
+**(4 pts.) Upload your lab_04_hist_01.png file to Moodle. Make sure you double check the image size and resolution requirements.**
+
+# **Q4 Histogram Shapes 1**
+
+**(2 pts.) Qualitatively describe the differences among the three histograms.**
+The three histograms are all unimodal and have a relatively similar range of values in the random numbers generated. However, the histogram generated from the smallest number of rnorm() generated numbers does not look like a normal distribution (Norm 17) and has a gap between bars where the small rnorm() sample did not generate any values.The Norm 30 histogram also doesn't look like a perfect normal distribution and almost looks like it might have some slight left skew. Norm 300 and Norm 3000 both have enough values that they look like they are approaching the shape of the normal distribution, although Norm 300 has more variability.  
+
+# **Q5 Histogram Shapes 2**
+
+**Explain why the shapes of the histograms are different.**
+The shapes of the historgrams are different because of the sample size and which random values were pulled by rnorm(). For example, for the Norm 17 histogram there is a great deal of variability between the values rnorm() generated because we only asked it to generate 17 values. As we told rnorm() to pull more and more values the frequency of these values accumulates in a way that creates a histogram with a shape approaching the normal distribution.
+
+# **Q6: (1 pt) What are the parameters and their values for the standard Normal distribution?**
+
+The parameters of the normal distribution are mean and standard deviation. For a standard normal distribution the mean value = 0 and the standard deviation = 1.
+
+```{r}
+x = seq(-100,100 , length.out = 1000)
+y = dnorm(x, mean = 10.4, sd = 2.4)
+
+svg(filename = here("images","norm_1.svg"), width = 7, height = 8, pointsize = 14)
+plot(x, y, main = "Normal PDF with mean = 10.4 and sd =2.4", type = "l", xlim = c(2, 19))
+abline(h = 0)
+dev.off()
+```
+# **Q9 Random Data Set**
+**(3 pts.) Show the R code you used to create one of the random datasets in your figure.**
+```{r}
+n_pts4 = c(1:500)
+x_min4 = 1
+x_max4 = 400
+x4 = dunif(n_pts4, min = x_min4, max = x_max4)
+dat4 = data.frame(x = x4, y_observed4 = dnorm(n_pts4))
+```
+
+
+#creating figure 
+```{r, include = FALSE}
+png(filename = here("images","lab_04_q10_plots.png"), width = 1000, height = 900, res = 180, units = "px")
+par(mfrow = c(2,2))
+
+#plot 1
+n_pts1 = 300
+x_min1 = 1
+x_max1 = 50
+x1 = runif(n_pts1, min = x_min1, max = x_max1)
+dat1 = data.frame(x = x1, y_observed1 = rnorm(n_pts1))
+hist(x1, main = "Histogram of n_pts = 300",xlab = "n_pts = 300 dataset", col=
+        adjustcolor(col = "red", alpha.f = 0.1))
+
+#plot 2
+n_pts = 1:400
+x2 = runif(n = n_pts)
+dat2 = data.frame(x = n_pts, y_observed2 = dpois(n_pts, x2))
+boxplot(dat2$x~dat2$y_observed2, col= adjustcolor(col = "darkorchid", alpha.f = 0.5), main = "Runif & dpois", xlab = "runif n_pts = 1:400", ylab ="dpois")
+
+#plot 3
+set.seed(20)
+n_pts = 15
+x_min = 1
+x_max = 50
+x3 = runif(n = n_pts, min = x_min, max = x_max)
+dat3 = data.frame(x = x3, y_observed3 = rnorm(n_pts))
+plot(dat3$x~dat3$y_observed3, col= adjustcolor(col = "slateblue4", alpha.f = 0.5), main = "Set Seed 20", xlab = "runif n_pts = 15", ylab ="rnorm")
+
+
+#plot 4
+n_pts4 = c(1:500)
+x_min4 = 1
+x_max4 = 400
+x4 = dunif(n_pts4, min = x_min4, max = x_max4)
+dat4 = data.frame(x = x4, y_observed4 = dnorm(n_pts4))
+plot(dat4$x~dat4$y_observed4, pch = 16, col= adjustcolor(col = "darkgreen", alpha.f = 0.5), main = "Dunif & dnorm", xlab = "dunif n_pts = 1:500", ylab ="dnorm")
+dev.off()
+```
+# **Q11 Random Data Model Fit (Q 13-14)**
+**(3 pts.) Show the R code you used to create one of the random datasets in your figure.**
+```{r}
+set.seed(20)
+n_pts = 15
+x_min = 1
+x_max = 50
+x3 = runif(n = n_pts, min = x_min, max = x_max)
+dat3 = data.frame(x = x3, y_observed3 = rnorm(n_pts))
+```
+
+```{r, include=FALSE}
+png(filename = here("images","lab_04_model_fit.png"), width = 1000, height = 900, res = 180, units = "px")
+plot(dat3$x~dat3$y_observed3, col= adjustcolor(col = "slateblue4", alpha.f = 0.5), main = "Set Seed 20", xlab = "runif n_pts = 15", ylab ="rnorm")
+
+guess_x = 0
+guess_y = 20
+guess_slope = -8
+
+plot(dat3$x~dat3$y_observed3, col= adjustcolor(col = "slateblue4", alpha.f = 0.5), main = "Set Seed 20", xlab = "runif n_pts = 15", ylab ="rnorm")
+curve(line_point_slope(x, guess_x, guess_y, guess_slope), add = T)
+dev.off()
+```
+
+# **Q13 Random Data Model Residuals (Q 13-14)**
+**(2 pts.) Paste the R code you used to create create the columns of predicted values and residuals.**
+
+```{r}
+Y_predicted = line_point_slope(dat3$x, guess_x, guess_y, guess_slope)
+dat3$y_predicted = Y_predicted
+dat3$resids = dat3$y_predicted - dat3$y_observed
+
+```
+
+# **Q14 Random Data Model Residual Plot**
+**(3 pts.) In your report, include the two following figures**
+**A histogram of the model’s residuals.**
+**A scatterplot of your model’s predicted values (on the x-axis) and residuals (on the y-axis).**
+
+##residual plots
+```{r}
+par(mfrow =c(1,2))
+hist(dat3$resids, main = "Histogram of Residuals", xlab = "Residuals")
+plot(dat3$resids ~ dat3$y_predicted, main = "Residuals vs Predicted", ylab = "Residuals", xlab = "Predicted Values")
+```
+
+
+
+

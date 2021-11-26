@@ -1,0 +1,48 @@
+---
+title: "In Class Using Models 1"
+author: "Aliza Fassler"
+date: "11/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+require(here)
+catrate = read.csv(here("data", "catrate.csv"))
+```
+
+```{r}
+shapiro.test(catrate$cat.rate)
+```
+
+```{r}
+hist(catrate$cat.rate, main = "Histogram of Catastrophe Rates", xlab = "Catastrophe Rate")
+```
+```{r}
+require(palmerpenguins)
+```
+
+```{r}
+dat_ade = droplevels(subset(penguins, species == "Adelie"))
+```
+
+```{r}
+hist(dat_ade$body_mass_g, main = "Adelie Penguins: Body Mass", xlab = "body mass (g)")
+```
+Q1 (2 pts.): Create separate boxplots of body mass for male and female Adelie penguins. Your boxplots do not have to be in the same panel like mine. Show the R-code you used to make the plots.
+```{r}
+ade_female = subset(dat_ade, sex == "female")
+boxplot()
+```
+
+```{r}
+t.test(ade_female$body_mass_g, mu = 0, alternative = "two.sided")
+```
+```{r}
+ade_male = subset(dat_ade, sex == "male")
+t.test(ade_male$body_mass_g, mu = 4000, alternative = "greater")
+```
+

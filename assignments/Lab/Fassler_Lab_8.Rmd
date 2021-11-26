@@ -1,0 +1,239 @@
+---
+title: "Lab_8"
+author: "Aliza Fassler"
+date: "10/27/2021"
+output: html_document
+---
+
+I worked with Justin Roche and Sonja Glasser on this assignment.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r chinstrap and adelie flipper bootstrap, include=FALSE}
+require(simpleboot)
+require(palmerpenguins)
+penguin_dat = droplevels(subset(penguins, species != "Gentoo"))
+adelie = subset(penguin_dat, species =="Adelie")
+chinstrap = subset(penguin_dat, species =="Chinstrap")
+
+boot_mean = function(x, i)
+{
+  return(mean(x[i], na.rm = TRUE))
+}
+
+pen_boot = two.boot(adelie$flipper_length_mm, chinstrap$flipper_length_mm, FUN = boot_mean, R=10000)
+
+str(pen_boot)
+```
+
+
+# **Q1 (1 pt.): Calculate the standard deviation of the differences in mean flipper length from your bootstrap simulation. Show the R-code you used to find do the calculation.**
+
+```{r}
+sd(pen_boot$t)
+```
+
+
+# **Q2 (2 pts.): Include your histogram in your lab report (you don’t need to show the R-code but make sure your plot includes appropriate title, axes, etc.).**
+```{r, echo=FALSE}
+hist(pen_boot$t, main = "Histogram of Mean Flipper Length Bootstrapped Differences 
+     Adelie vs. Chinstrap", 
+     xlab="Bootstrap Differences")
+```
+
+# **Q3 (2 pts.): What was the 95% bootstrap CI you calculated using quantile()? Show the R-code you used to answer the question.**
+```{r}
+quantile(
+  pen_boot$t,
+  c(0.025, 0.975))
+```
+
+
+# **Q4 (4 pts.): Do you think the resampled differences in means follow a skewed distribution? Your answer should make reference to the mean, median, and histogram of the differences in means**
+```{r, include=FALSE}
+mean(pen_boot$t)
+median(pen_boot$t)
+
+```
+
+No the re-sampled differences in means do not follow a skewed distribution. The frequencies of differences in mean flipper length bootstrapped differences in the histogram look relatively symmetrical around the mean. The mean and median of the distribution are almost the same (mean = -5.872, median = -5.869) indicating that the distribution is relatively symmetrical not skewed.
+
+
+# **Q5 (2 pts.): Show the R-code you used to create pen_ecdf()**
+```{r}
+pen_ecdf<-ecdf(pen_boot$t)
+```
+
+# **Q6 (2 pts.): What is the probability, according to the empirical distribution function, of observing a mean difference of -4.5 or greater? Show the R code you used to perform the calculation.**
+```{r}
+1-pen_ecdf(-4.5)
+```
+
+# **Q7 (2 pts.): What is the probability, according to the empirical distribution function, of observing a mean difference of -8 or smaller? Show the R code you used to perform the calculation.**
+```{r}
+pen_ecdf(-8)
+```
+# **Q8 (3 pts.): State the null and alternative hypotheses of a two-sample, two-tailed test for the difference in mean flipper lengths between the two penguin species.**
+
+The null hypothesis is that there is no difference in flipper length between the two penguin species. In frequentist terms the flipper length of Adelie and Chinstrap penguins are drawn from the same population of possible penguin flipper lengths.The alternative hypothesis is that there is a difference in flipper length between the two species. 
+
+
+# **Q9 (2 pts.): What was the p-value? Show the R-code you used to find out.**
+```{r, include = FALSE}
+require(here)
+veg = read.csv(here("data", "vegdata.csv"))
+head(veg)
+```
+
+```{r, include=FALSE}
+veg_dropped = droplevels(subset(veg, treatment %in% c("control", "clipped")))
+```
+
+```{r}
+wilcox.test(pine ~ treatment, data = veg_dropped)
+```
+```{r}
+tree_boot = 
+  two.boot(
+    subset(veg_dropped, treatment == "clipped")$pine,
+    subset(veg_dropped, treatment == "control")$pine,
+    FUN = mean,
+    R = 10000,
+    na.rm = TRUE
+  )
+
+```
+
+
+# **Q10 (1 pt.): What were the endpoints of your bootstrap CI? Show the R-code you used to find out.**
+```{r}
+quantile(
+  tree_boot$t,
+  c(0.025, 0.975))
+```
+CI endpoints are 4.125-29.500.
+
+# **Q11 (1 pt.): What is the observed difference in mean tree counts and does it fall within the 95% bootstrap CI?**
+```{r}
+observed_clipped <-mean(subset(veg_dropped, treatment == "clipped")$pine)
+observed_control <-mean(subset(veg_dropped, treatment == "control")$pine)
+
+observed_clipped - observed_control
+```
+
+Yes, the observed difference in mean tree counts is within the 95% bootstrap CI.
+
+# **Q12 (2 pts.): Briefly describe the Simpson diversity index, and explain what it quantifies.**
+
+The simpson diversity index is a species diversity index that takes into account both species richness (total number of species in an area) and species eveness (abundance of each species). As both richness and eveness increase the overall diversity index value increases. Diversity indices are usefull for comparing values of diversity between sites. 
+
+```{r, inclue = FALSE}
+dat_bird = read.csv(here("data", "bird.sub.csv"))
+dat_habitat = read.csv(here("data", "hab.sub.csv"))
+
+dat_all = merge(
+  dat_bird, 
+  dat_habitat,
+  by = c("basin", "sub"))
+
+head(dat_all[, c("b.sidi", "s.sidi")])
+```
+
+
+```{r, include=FALSE}
+# Calculate the sidi sample mean and sd:
+b_sidi_mean = mean(dat_all$b.sidi, na.rm = TRUE)
+b_sidi_sd   = sd(dat_all$b.sidi, na.rm = TRUE)
+
+# Use the subset-by-name symbol ($) to create a 
+# new column of z-standardized values.
+
+dat_all$b.sidi.standardized = (dat_all$b.sidi - b_sidi_mean)/b_sidi_sd
+```
+
+
+# **Q13 (2 pts.): Show the code you used to z-standardize the s.sidi column.**
+```{r}
+# Calculate the sidi sample mean and sd:
+s_sidi_mean = mean(dat_all$s.sidi, na.rm = TRUE)
+s_sidi_sd   = sd(dat_all$s.sidi, na.rm = TRUE)
+
+# Use the subset-by-name symbol ($) to create a 
+# new column of z-standardized values.
+
+dat_all$s.sidi.standardized = (dat_all$s.sidi - s_sidi_mean)/s_sidi_sd
+
+#checking it worked
+mean(dat_all$s.sidi.standardized)
+sd(dat_all$s.sidi.standardized)
+```
+
+```{r, include=FALSE}
+dat_1 = 
+  subset(
+    dat_all,
+    select = c(b.sidi, s.sidi))
+```
+
+
+# **Q14 (6 pts.): Show the code for your completed loop.**
+```{r}
+rm(list = ls())
+dat_bird = read.csv(here("data", "bird.sub.csv"))
+dat_habitat = read.csv(here("data", "hab.sub.csv"))
+
+dat_all = merge(
+  dat_bird, 
+  dat_habitat,
+  by = c("basin", "sub"))
+
+head(dat_all[, c("b.sidi", "s.sidi")])
+
+dat_1 = 
+  subset(
+    dat_all,
+    select = c(b.sidi, s.sidi))
+
+m = 10000 
+result = numeric(m)
+
+for(i in 1:m)
+{
+  index_1 = sample(nrow(dat_1), replace = TRUE)
+  index_2 = sample(nrow(dat_1), replace = TRUE)
+  
+  dat_resampled_i = data.frame(
+    b.sidi = dat_1$b.sidi[index_1],
+    s.sidi = dat_1$s.sidi[index_2])
+  
+  fit_resampled_i = lm(b.sidi ~ s.sidi, data = dat_resampled_i)
+  
+  slope_resampled_i = coef(fit_resampled_i)[2]
+  result[i] = coef(fit_resampled_i)[2]
+} 
+```
+
+
+# **Q15 (2 pts.): In your report, include a plot of your histogram with vertical lines showing the observed slope and the critical value from the resampled MC slopes.**
+```{r}
+fit_1 = lm(b.sidi ~ s.sidi, data = dat_all)
+slope_observed = coef(fit_1)[2]
+crit_value=quantile(result, c(.05))
+
+hist(result, main = "Null Distribution of Regression Slope", xlab = "Slope Parameter")
+abline(v = slope_observed, lty = 1, col = "blue", lwd = 2)
+abline(v = crit_value, lty = 2, col = "red", lwd = 2)
+```
+
+# **Q16 (2 pts.): What was your critical value? Was the observed slope less than the critical value?**
+```{r, include=FALSE}
+quantile(result, c(.05))
+```
+My critical value = -0.0132 the observed slope was less (-0.0244).
+
+# **Q17 (3 pts.): What is your conclusion regarding the evidence of a negative relationship between vegetation cover diversity and bird diversity? Make sure to justify your conclusions using the results of your analysis.**
+
+My conclusion is that the evidence we have suggests that there is a significant negative relationship between vegetation cover diversity and bird diversity. My conclusion is based on the fact that the observed slope falls bellow the 5th percentile of our re-sampled data. This indicates that it would be highly unlikely to observe this strong of a negative slope due to chance alone. 
+

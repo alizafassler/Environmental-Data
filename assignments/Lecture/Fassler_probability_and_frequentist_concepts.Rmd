@@ -1,0 +1,94 @@
+---
+title: "Probability and Frequentist Concepts"
+author: "Aliza Fassler"
+date: "10/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Q1 (2 pts.): What is the probability of observing a count of exactly 3 successes in a binomial distribution with parameters n = 4 and p = 0.75?
+
+
+```{r}
+dbinom(3, 4, 0.75)
+```
+
+# Q2 (2 pts.): What is the probability of observing a count of 3 successes or fewer in a binomial distribution with parameters n = 4 and p = 0.75?
+
+
+```{r}
+pbinom(3, 4, 0.75)
+
+```
+# Q3 (2 pts.): What is the probability of observing more than 3 successes in a binomial distribution with parameters n = 5 and p = 0.75?
+
+```{r}
+1-pbinom(3, 4, 0.75)
+```
+# Q4 (2 pts.): - What is the probability of observing a value of less than 1.2 from a normally-distributed population with mean = 2 and standard deviation = 2?
+
+
+```{r}
+pnorm(1.2, mean = 2, sd = 2)
+```
+# Q5 (2 pts.): - What is the probability of observing a value of greater than 1.2 from a normally-distributed population with mean = 2 and standard deviation = 2?
+
+
+```{r}
+1-pnorm(1.2, mean = 2, sd = 2)
+```
+# Q6 (4 pts.): - What is the probability of observing a value between 1.2 and 3.2 from a normally-distributed population with mean = 2 and standard deviation = 2?
+
+```{r}
+upper<-pnorm(3.2, mean = 2, sd = 2, lower.tail=TRUE)
+lower<-pnorm(1.2, mean = 2, sd = 2, lower.tail=TRUE)
+upper-lower
+
+```
+# Q7 (2 pts.): Describe how the shape of the histogram changes as you continue to press the sample button.
+
+As I continue to press the sample button (take 50 samples of 1 value from the population) it starts to more closely resemble the underlying population distribution. This is because more values fill in the gaps and with more samples the frequency of observing a given value relative to others becomes more clear.
+
+# Q8 (2 pts.): Describe how the shape of the histogram changes as you continue to press the sample button.
+
+The more times I press the sample button the less the sample distribution is skewed and the more complete the histogram is. Gaps are filled in more quickly with a sample size of 2 and the width of the sample distribution narrows slightly.The first values to populate are generally those with the highest frequency and as I add more samples low frequency values in the population are added to the sample histogram.
+
+# Q9 (2 pts.): Describe how the shape of the histogram changes as you continue to press the sample button.
+As I continue to press the sample button the shape of the histogram becomes more symetrical and closer in appearance to the normal distribution.
+
+# Q10 (2 pts.): Why is there such a drastic change in the shape of the sampling distribution when you change the sample size from 1 to 2?
+There is drastic change in the shape of the sampling distribution because we have doubled the sample size, even a small increase can have a big effect on the shape of the distribution. A larger sample size means a greater chance of having a reprentative sample of the population (and therefore the true population mean) and reduces the standard deviation. The central limit theorem states that as sample size increases the frequency distribution of sample means approach the shape of the normal distribution even if the population distribution is skewed.
+
+# Q11 (2 pts.): What are the two main factors that determine the width of the sampling distribution of the mean?
+
+The two main factors that determine the width of the sampling distribution of the mean are sample size and and the standard deviation (i.e. the variation around the mean).
+
+
+# Q12 (2 pts.): How many 3-character words are possible?
+```{r}
+25^3
+```
+
+
+# Q13 (2 pts.): How many books would the Library contain if you added one additional position to the book size? Express your answer in terms of B.
+
+P=pages
+R=rows
+p=positions 
+l=letters
+
+B = l^(P*r*p)
+
+B = 25 ^ (410 * 40 * 81)
+
+```{r}
+410*40*81
+B = 25 ^ (1328400)
+B
+```
+
+
+

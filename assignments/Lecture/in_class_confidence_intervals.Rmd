@@ -1,0 +1,26 @@
+---
+title: "In Class Confidence Intervals"
+author: "Aliza Fassler"
+date: "10/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+qnorm(c(0.05, 0.95))
+```
+
+```{r}
+qt(.95, df = 10)
+```
+```{r}
+qt(p = c(0.025, 0.975), df = 3 )
+```
+```{r}
+sse = 314/sqrt(50)
+
+```
+

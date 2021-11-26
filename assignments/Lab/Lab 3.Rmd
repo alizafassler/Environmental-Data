@@ -1,0 +1,171 @@
+---
+title: "Lab 3"
+author: "Aliza Fassler"
+date: "9/22/2021"
+output: html_document
+---
+Worked with Justin Roch & Abby Guinan
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+.
+```{r, include=FALSE}
+##loading psych package
+require(psych)
+```
+
+
+```{r, include=FALSE}
+#testing pair.panel()
+pairs.panels(iris)
+```
+
+
+```{r, include=FALSE}
+#loading data
+require(here)
+dat_bird = read.csv(here("data", "bird.sta.csv"))
+dat_habitat = read.csv(here("data", "hab.sta.csv"))
+head(dat_bird)
+head(dat_habitat)
+```
+```{r, include=FALSE}
+#merging dataframes
+dat_all = merge(dat_bird, dat_habitat)
+```
+
+```{r, include=FALSE}
+plot(ba.tot ~ elev, data = dat_all)
+```
+```{r, include=FALSE}
+#converting to presence absence 
+cedar_pres_absence = dat_all$CEWA >= 1
+cewa_present_absent = as.numeric(dat_all$CEWA >=1)
+```
+
+```{r, include=FALSE}
+plot(x = dat_all$elev, y = cewa_present_absent)
+```
+```{r, include=FALSE}
+# Function to calculate the logistic parameter a given the slope and midpoint
+get_logistic_param_a = function(slope, midpoint)
+{
+  b = slope / 4
+  return (-midpoint * (slope / 4))
+}
+
+# Function to calculate the logistic parameter b given the slope
+get_logistic_param_b = function(slope)
+{
+  return (slope / 4)
+}
+
+
+# Calculate the value of the logistic function at x, given the parameters a and b.
+logistic = function(x, a, b)
+{
+  val = exp(a + b * x)
+  return(val / (1 + val))
+}
+
+# Calculate the value of the logistic function at x, given a slope and midpoint.
+logistic_midpoint_slope = function(x, midpoint, slope)
+{
+  b = get_logistic_param_b(slope)
+  a = get_logistic_param_a(slope, midpoint)
+  return(logistic(x, a, b))
+}
+```
+
+```{r, include=FALSE}
+#testing logistic fits
+plot(x = dat_all$elev, y = cewa_present_absent)
+curve(logistic_midpoint_slope(x, midpoint = 400, slope = 0.1), add = TRUE)
+
+plot(x = dat_all$elev, y = cewa_present_absent)
+curve(logistic_midpoint_slope(x, midpoint = 400, slope = -0.1), add = TRUE)
+
+plot(x = dat_all$elev, y = cewa_present_absent)
+curve(logistic_midpoint_slope(x, midpoint = 400, slope = -0.05), add = TRUE)
+```
+#**Q1 What is basal area, and how is it measured?**
+
+Total basal area of trees, live and dead with the units (m2 per ha). It represents the how much of a hectare is covered by trees.
+
+#**Q2  Include a figure of your terrain/basal area pairplots.**
+```{r}
+terrain_basal = dat_all[c("elev", "slope", "aspect", "ba.tot")]
+
+pairs.panels(terrain_basal)
+```
+
+
+```{r}
+AMRO_present_absent = as.numeric(dat_all$AMRO >=1)
+BCCH_present_absent = as.numeric(dat_all$BCCH >=1)
+```
+
+#**Q3 Fitted Logistic Model Plot**
+**Include an figure of your logistic function plot. Your figure must include the name of the bird species, appropriate title, axes, etc.**
+```{r}
+#making plots
+plot(x = dat_all$ba.tot, y = AMRO_present_absent, main = "AMRO Presence Absence by Total Basal Area", xlab = "Total Basal Area (m2 per ha)", ylab = "AMRO Presence/Absence")
+curve(logistic_midpoint_slope(x, midpoint = 150, slope = -0.24), add = TRUE)
+```
+
+#**Q4 Model Interpretation**
+
+**Qualitatively describe the bird’s presence/absence patterns in terms of basal area.**
+**Your answer should make reference to your fitted logistic model.**
+**Does the bird species seem to prefer areas with high or low tree cover?**
+**Does a logistic model seem like a good fit?**
+This bird is most frequently found in habitats with a total basal area between 0 -50 m2 per ha.This indicates that it prefers areas with relatively low tree cover.The logistic model I fit has a sigmoid shape that starts high indicating that AMRO presence is clustered around low values of total basal area. The shape ends low indicating that this bird species was absent in areas with high tree cover (or that this areas were undersampled as indicated by the lack of data points). This logistic model fits the overall pattern in presence/ absence in relation to total basal area but there are two presence records that lie pretty far off the line.
+
+
+
+
+
+#**Q5 Fitted Logistic Model Plot**
+**Include an figure of your logistic function plot. Your figure must include the name of the bird species, appropriate title, axes, etc**
+```{r}
+#making plots
+plot(x = dat_all$ba.tot, y = BCCH_present_absent, main = "BCCH Presence Absence by Total Basal Area", xlab = "Total Basal Area (m2 per ha)", ylab = "BCCH Presence/Absence")
+curve(logistic_midpoint_slope(x, midpoint = 90, slope = -0.3), add = TRUE)
+
+```
+
+#**Q6 Model Interpretation**
+**Qualitatively describe the bird’s presence/absence patterns in terms of basal area.**
+**Your answer should make reference to your fitted logistic model.**
+**Does the bird species seem to prefer areas with high or low tree cover?**
+**Does a logistic model seem like a good fit?**
+
+This bird has very few presence records making patterns hard to interpret from this graph. Based on the few presence values this bird seems to prefer areas with low tree cover (basal areas between 0-50 m2 per ha). This is indicated by the sigmoid shape of the logistic function I fitted which starts high, indicating presence of this species at low basal areas and ends low at high basal areas. This logistic model also fits the overall pattern in presence/ absence in relation to total basal area but there are two presence records that lie pretty far off the line.  
+
+#**Q7 How many total number of Gray Jays were observed in all of the sampling sites.**
+
+181 Gray Jays
+
+#**Q8 Include the R code you used to perform the calculation.**
+```{r}
+sum(dat_all$GRJA)
+```
+#**Q9 Calculate the total number of sampling sites in which Gray Jays were observed.**
+
+110
+
+
+#**Q10 Include the R code you used to perform the presence/absence calculation.**
+```{r}
+GRJA_sites = dat_all$GRJA > 0
+sum(GRJA_sites)
+
+```
+
+
+
+
+
+

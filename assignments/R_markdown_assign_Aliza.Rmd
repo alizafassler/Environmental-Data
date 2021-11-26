@@ -1,0 +1,32 @@
+---
+title: "R Markdown Documents - Part 1"
+author: "Aliza Fassler"
+date: "9/11/2021"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+subtitle: Analysis of Environmental Data
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(bslib)
+library(rmarkdown)
+bslib::bootswatch_themes()
+```
+
+# Introduction
+Hello my name is **Aliza** and I am a MS thesis student in *Environmental* *Conservation* studying forest management for wild bees.
+
+# Concepts List
+1. Mixed effects models
+2. Learn how to use r code more intuitively without needing to refer back to examples
+3. How to deal with complicated real ecological datasets 
+
+# Course list 
+1. Invertebrate Diversity
+2. Conservation Biology
+3. Plant Ecology

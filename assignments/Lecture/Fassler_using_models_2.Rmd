@@ -1,0 +1,23 @@
+---
+title: "Fassler Using Models 2"
+author: "Aliza Fassler"
+date: "11/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+.
+```{r}
+require(palmerpenguins)
+```
+# **Q1 (4 pts.): Re-create the conditional boxplot of penguin body mass conditioned on sex and species.**
+```{r}
+par(las=2)
+boxplot(body_mass_g ~ sex*species,
+    data = penguins, main = "Conditional Boxplot on Sex & Species", xlab = " ", ylab = "Body Mass (g)", names=c("Adelie\nfemale", "Adelie\nmale", "Gentoo\nfemale", "Gentoo\nmale", "Chinstrap\nfemale", "Chinstrap\nmale"))
+```
+
+

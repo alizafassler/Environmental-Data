@@ -1,0 +1,101 @@
+---
+title: "Week 2 in class excercise"
+author: "Aliza Fassler"
+date: "9/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+data("iris")
+```
+
+```{r}
+#preview dataset
+head(iris)
+```
+
+```{r}
+#selecting column
+iris$Petal.Length
+```
+
+
+
+```{r}
+#calculate mean
+mean(iris$Petal.Width)
+
+```
+
+```{r}
+#sd
+sd(iris$Petal.Width)
+```
+```{r}
+#simple plot
+plot(x = iris$Sepal.Width, y = iris$Sepal.Length)
+```
+
+```{r}
+#finding center of the data
+data_center_x = mean(iris$Sepal.Width)
+data_center_y = mean(iris$Sepal.Length)
+c(data_center_x, data_center_y)
+```
+```{r}
+#add points to existing plot
+plot(x = iris$Sepal.Width, y = iris$Sepal.Length)
+points(x = data_center_x, y = data_center_y, col = "red")
+```
+```{r}
+#loading custum function to calculate y-value along any line which I know the slope and coords of a single pt
+line_point_slope = function(x, x1, y1, slope)
+{
+  get_y_intercept = 
+    function(x1, y1, slope) 
+      return(-(x1 * slope) + y1)
+  
+  linear = 
+    function(x, yint, slope) 
+      return(yint + x * slope)
+  
+  return(linear(x, get_y_intercept(x1, y1, slope), slope))
+}
+```
+
+```{r}
+#trying with numbers
+line_point_slope(2, 4, 4, -2)
+```
+```{r}
+#adding curve to existing plot
+plot(x = iris$Sepal.Width, y = iris$Sepal.Length)
+points(x = data_center_x, y = data_center_y, col = "red")
+curve(
+  line_point_slope(
+    x, 
+    data_center_x, 
+    data_center_y,
+    -0.1), 
+  add = TRUE)
+```
+
+```{r}
+#Making my own graph
+#adding curve to existing plot
+plot(x = iris$Sepal.Width, y = iris$Sepal.Length, main = "Aliza's Plot", xlab = "Sepal Width", ylab = "Sepal Length")
+points(x = data_center_x, y = data_center_y, col = "red")
+curve(
+  line_point_slope(
+    x, 
+    data_center_x, 
+    data_center_y,
+    2), 
+  add = TRUE)
+```
+
+

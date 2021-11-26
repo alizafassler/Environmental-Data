@@ -1,0 +1,161 @@
+---
+title: "Lab 6"
+author: "Aliza Fassler"
+date: "10/13/2021"
+output: html_document
+---
+
+I worked with Sonja Glasser and Justin Roch.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include = FALSE}
+require(here)
+require(dplyr)
+dat_pen = require(palmerpenguins)
+```
+
+
+# **Q1 (3 pts.): Show the R code you used to define your sse_mean() function. Include the following line before your function definition:**
+
+```{r}
+rm(list = ls())
+sse_mean = function(x)
+ { 
+  y = na.omit(x)
+  return(sd(y)/sqrt(length(y)))
+}
+
+sse_mean(penguins$bill_depth_mm)
+sse_mean(mtcars$mpg)
+```
+#This is also an option
+```{r}
+rm(list = ls())
+sse_mean2 = function(x)
+ { 
+  y = x[is.na(x) != 1]
+  return(sd(y)/sqrt(length(y)))
+}
+
+sse_mean2(penguins$bill_depth_mm)
+sse_mean2(mtcars$mpg)
+```
+```{r, include = FALSE}
+dat_pen = droplevels(subset(penguins, species != "Gentoo"))
+```
+
+
+# **Q2 (4 pts.): Include the code you used to define your two_group_resample() function into the text input.**
+```{r}
+x = dat_pen$flipper_length_mm
+n_1 = 68
+n_2 = 152
+
+two_group_resample = function(x, n_1, n_2) 
+{
+dat_1 = sample(x, n_1, replace = TRUE)
+dat_2 = sample(x, n_2, replace = TRUE)
+
+difference_in_means = mean(dat_1, na.rm = TRUE) - mean(dat_2, na.rm = TRUE)
+  
+  return(difference_in_means)
+}
+```
+
+##testing function
+```{r}
+set.seed(54321)
+two_group_resample(dat_pen$flipper_length_mm, 68, 152)
+```
+# **Q3 (2 pts.): Does your function perform Monte Carlo or bootstrap resampling, i.e. does it simulate a null or an alternative hypothesis? You may want to review your answer after you complete the rest of the lab questions.**
+
+My function performs Monte Carlo function, because it resamples flipper length with no relationship to the species. This simulates the null hypothesis. 
+
+# **Q4 (2 pts.): Create histogram of the resampled differences of means**
+
+```{r}
+n = 2000
+mean_differences = c()
+for (i in 1:n)
+{
+  mean_differences = c(
+    mean_differences,
+    two_group_resample(dat_pen$flipper_length_mm, 68, 152)
+  )
+}
+hist(mean_differences, main = "Histogram of Simulated Mean Differences (Monte Carlo)", xlab = "Mean Differences")
+```
+
+# **Q5 (6 pts.): How many of your resampled differences of means were greater than 5.8?**
+
+None because my sampling method approximated the null hypothesis. 
+
+**Assume that we are doing a 2-sided test: we don’t care which species has longer** **flippers, we only want to know if they are different.**
+**Include the R code you used to check the number of differences greater than 5.8.**
+
+```{r}
+t_test = t.test(dat_pen$flipper_length_mm ~ dat_pen$species)
+t_test
+diff_observed = round(diff(t_test$estimate), digits = 3)
+print(diff_observed, digits = 3)
+sum(abs(mean_differences) >= diff_observed)
+```
+# **Q6 (2 pts.): Given a p value of less than 1 per 10 million, how many simulations do you think you would have to do to see a difference in mean flipper length equal to or greater than 5.8 mm?**
+
+Over 10 million, because a p-value that small indicates that we would be extremely unlikley to to see that pattern if we re-sampled due to chance alone.
+
+# **Q7 (1 pt.): Include a boxplot of your chosen variable in your report.**
+#boxplot
+```{r}
+boxplot(dat_pen$body_mass_g ~ dat_pen$species, xlab = "Species", ylab = "Body Mass (g)")
+```
+
+# **Q8 (3 pts.): Report the group means and difference between the means.**
+#aggregate
+```{r}
+agg_means = aggregate(
+  body_mass_g ~ species, 
+  data = dat_pen, 
+  FUN = mean, 
+  na.rm = TRUE)
+diff_observed = diff(agg_means[, 2])
+
+agg_means
+diff_crit = diff_observed
+diff_crit
+```
+The Adelie group mean = 3700.662, the Chinstrap group mean = 3733.088. The difference between the means is 32.4259g.
+
+# **Q9 (4 pts.): Interpret the p-value from the t-test output in plain, non-technical English that a non-statistician would understand.**
+
+The p-value from the t-test shows that it is very likely we would observe a difference in mean body mass of 32.4259g by chance alone (i.e. because of random individual variation in our sample). If were were to re-sample this population repeatedly our random samples would have over a 50% chance of seeing this great a difference in means or greater.
+
+```{r}
+t_test = t.test(dat_pen$body_mass_g ~ dat_pen$species)
+t_test
+```
+# **Q10 (2 pts.): How many differences in means were greater than diff_crit?**
+**Remember to treat this as a 2-tailed test.**
+```{r}
+n = 1000
+mean_differences = c()
+for (i in 1:n)
+{
+  mean_differences = c(
+    mean_differences,
+    two_group_resample(dat_pen$body_mass_g, 68, 152)
+  )
+}
+sum(abs(mean_differences) >= diff_observed)
+```
+I had 603 simulations where the absolute value of the difference in means were greater then or equal to the diff_crit. 
+
+
+# **Q11 (2 pts.): Include a histogram of your simulation results in your report. Make sure it has appropriate title and labels.**
+```{r}
+hist(mean_differences, main = "Histogram of Simulated Mean Differences (Monte Carlo)", xlab = "Mean Differences")
+```
+

@@ -1,0 +1,110 @@
+---
+title: "Fassler Lab 10"
+author: "Aliza Fassler"
+date: "11/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+require(here)
+```
+
+On this assignment I worked with Sonja Glasser and Justin Roche.
+
+# **Q1 (8 pts.): Submit the code you used to build your ANOVA by hand. Make sure you use the code template so that you use the same variable names as those which I’ll use for the grading.**
+
+```{r}
+rm(list = ls())
+
+rope = read.csv(here("data", "rope.csv"))
+rope$rope.type = factor(rope$rope.type)
+
+n_obs = length(rope$rope.type)
+n_groups = nlevels(rope$rope.type)
+
+ss_tot = sum((mean(rope$p.cut) - rope$p.cut)^2)
+df_tot = n_obs -1
+
+agg_sq_resids = aggregate(
+  x = rope$p.cut,
+  by = list(rope$rope.type),
+  FUN = function(x) sum((x - mean(x))^2))
+
+ss_within = sum(agg_sq_resids$x)
+df_within = n_obs - n_groups
+
+ss_among = ss_tot - ss_within
+df_among = df_tot-df_within
+
+
+ms_among  =  ss_among / (n_groups - 1)
+ms_within = ss_within / (n_obs - n_groups)
+
+f_ratio = ms_among/ms_within
+f_pval = 1 - pf(f_ratio, df_among, df_within)
+```
+
+
+```{r, include = FALSE}
+#self check
+digits_check = 5
+
+# Build the reference model using R functions
+fit_1 = lm(p.cut ~ rope.type, data=rope)
+anova(fit_1)
+anova_fit_1 = anova(fit_1)
+
+# Check degrees of freedom
+anova_fit_1$Df == c(df_among, df_within)
+
+# Check sums of squares
+round(anova_fit_1$`Sum Sq`, digits = digits_check) == round(c(ss_among, ss_within), digits = digits_check)
+
+# Check mean squares
+round(anova_fit_1$`Mean Sq`, digits = digits_check) == round(c(ms_among, ms_within), digits = digits_check)
+
+# Check the F-ratio
+round(anova_fit_1$`F value`[1], digits = digits_check) == round(f_ratio, digits = digits_check)
+
+# Check the F test statistic p-value
+round(anova_fit_1$`Pr(>F)`[1], digits = digits_check) == round(f_pval, digits = digits_check)
+```
+
+# **Q2 (1 pt.): Examine the conditional boxplot in the Partitioning Variance: Within-Group section of the walkthrough. Based on the figure, do you think there are equal variances among the groups?**
+Based on the boxplot it looks like the rope type groups do not have equal variance. For example, the "blaze" group has a much greater spread compared to the "PI" group which has much less spread in the data and therefore less variance.
+
+# **Q3 (1 pt.): Conduct a Bartlett test to assess the homoteneity of variances in the rope type groups. Report the p-value.**
+```{r}
+bartlett.test(p.cut ~ rope.type, data=rope)
+```
+P-value = 0.00143
+
+# **Q4 (2 pts.): Given your graphical assessment (question 2) and the Bartlett test, do you think an ANOVA-type analysis is appropriate on the raw data? Explain why or why not.**
+
+Based on the boxplot and significant p-value from the bartlett test, I do not think an ANOVA-type analysis is appropriate for the raw data since it violates the homogeneity assumption. Transforming the data by using for example a log transformation may stabilize the variance because the groups with higher medians seem to have more spread. 
+
+
+# **Q5 (1 pt.): Which rope type is the base case?**
+
+Blaze is the base case.
+
+# **Q6 (1 pt.): What is the mean percent cut of the base case rope? Show your calculation using value(s) from the model coefficient table.**
+
+The mean percent cut for the base case is the estimate = 0.36714.
+
+
+# **Q7 (1 pt.): What is the mean percent cut rope type XTC? Show your calculation using value(s) from the model coefficient table.**
+```{r}
+ #The mean percent cut is the estimate for the base case minus the estimate for the XTC case.
+0.36714-0.10164
+```
+
+
+
+
+
+

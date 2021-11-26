@@ -1,0 +1,61 @@
+---
+title: "Fassler_using_models2"
+author: "Aliza Fassler"
+date: "11/26/2021"
+output: html_document
+---
+I worked alone on this assignment
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(here)
+require(palmerpenguins)
+```
+
+
+# **Q1 (4 pts.): Re-create the conditional boxplot of penguin body mass conditioned on sex and species.**
+```{r}
+par(las=2)
+boxplot(body_mass_g ~ sex*species,
+    data = penguins, main = "Conditional Boxplot Sex and Species", xlab = " ", ylab = "Body Mass (g)", names=c("Adelie\nfemale", "Adelie\nmale", "Gentoo\nfemale", "Gentoo\nmale", "Chinstrap\nfemale", "Chinstrap\nmale"))
+```
+
+# **Q2 (2 pts.): Based on the boxplots, do you think male penguins (of any species) are significantly heavier than female penguins? Explain your reasoning.**
+
+Based on the boxplots it looks like there may be significant relationship between penguin weight and sex. In the boxplot of penguin weight by sex, male penguins have a higher median weight and the spread of the data is shifted higher than the spread of the female weight data. In the boxplot that breaks down the weight data by species and sex we can see that this relationship isn't driven by a large difference in weight between males and females of one species, rather in all species the male penguins have a greater body mass. Additionally, in the weight ~ sex*species boxplot the median male weight is outside the IQR of the female weight for all species, indicating that there may be a significant pattern. There is some overlap in the spread of the data for male and female penguins, however the difference seems strong enough and the pattern is consistent enough for all species that I expect there is a significant difference between the weight of male and female penguins regardless of the species. 
+
+# **Q3 (2 pts.): Do you think adding sex to a model that already includes species will improve the model fit?**
+
+In the case of the penguin weight data I think that adding sex to a model that already includes species will improve the model fit because there are differences in penguin weight based on sex in addition to species.In the boxplot of penguin weight by sex, male penguins have a higher median weight and the spread of the data is shifted higher than the spread of the female weight data. It appears that there is a significant relationship between sex and penguin weight that explains some of the variability in the penguin by species data, thereby improving the model fit. 
+
+# **Q4 (2 pts.): Show the R-code you used to build fit_both**
+
+```{r}
+fit_both=lm(data=penguins, body_mass_g ~ sex*species)
+summary(fit_both)
+```
+
+# **Q5 (2 pts.): What is the base case for the two-way model that includes sex and species?**
+
+The base case is Adelie penguin females. 
+
+# **Q6 (2 pts.): What are the names of the two coefficients (from the first column of the coefficient table) you need to calculate the average mass of female Chinstrap penguins?**
+The coefficients needed are:
+
+intercept coefficient (sexfemale:speciesAdelie) + speciesChinstrap  = sexfemale:speciesChinstrap
+
+# **Q7 (2 pts.): What is the predicted average mass of female Chinstrap penguins in the interactive model?**
+
+```{r}
+#intercept coefficient + speciesChinstrap =
+ 3368.84 + 158.37
+```
+# **Q8 (2 pts.): What is the observed average mass of female Chinstrap penguins, calcluated from the penguins data?**
+```{r}
+aggregate(body_mass_g ~ sex*species, data = penguins, FUN = mean)
+```
+Observed mass = 3527.206
+
+  
+
+

@@ -1,0 +1,27 @@
+---
+title: "Gingko Data Exploration"
+author: "Aliza Fassler"
+date: "11/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+require(here)
+```
+
+```{r}
+ginkgo_dat   = read.csv(here("data", "ginkgo_data_2021.csv"))
+```
+
+
+```{r}
+boxplot(data =ginkgo_dat, notch_depth ~ seeds_present, main = "Notch Depth by Seeds Present", xlab = "Seeds Present", ylab = "Notch Depth")
+```
+```{r}
+plot(data = ginkgo_dat, max_width ~ max_depth, main = "Max depth vs. Max width", xlab = "Max Leaf Depth", ylab = "Max Leaf Width")
+```
+

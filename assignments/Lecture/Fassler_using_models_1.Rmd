@@ -1,0 +1,114 @@
+---
+title: "Using Models 1"
+author: "Aliza Fassler"
+date: "11/7/2021"
+output: html_document
+---
+I worked alone on this assignment.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+require(here)
+catrate = read.csv(here("data", "catrate.csv"))
+```
+# **Q1 (1 pt.): Create a histogram of the salamander reproduction catastrophic rates.**
+**Make sure you include an appropriate title and label for the x-axis.**
+```{r}
+hist(catrate$cat.rate, main = "Histogram of Catastrophe Rates", xlab = "Catastrophe Rate")
+```
+
+
+# **Q2 (1 pt.): Conduct a Shapiro-Wilk test of normality of the salamander catastrophic rates. Report the p-value and show the R-code you used to conduct the test.**
+```{r}
+shapiro.test(catrate$cat.rate)
+```
+p-value = 0.041
+
+# **Q3 (1 pt.): What is the null hypothesis for the Shapiro test?**
+
+The null hypothesis of the shapiro test is that the sample is drawn from a normally distributed population. In this specific case the null hypothesis is that the population of all possible marbled salamander catastrophe rates is normally distributed. 
+
+# **Q4 (1 pt.): Based on the Shapiro test results, is there strong evidence that the sample came from a non-normally-distributed population?**
+
+Based on the shapiro test there is strong evidence that the sample came from a non-normally distributed population. A p-value of 0.041 indicates that there is a 4% false positive rate, that is to say that 96% of the time a sample with this variance structure would not be drawn from a normally distributed population. Our false positive rate is 4%, meaning that we have a very low chance of drawing a really odd sample from a normally distributed population that would look like the cat.rate data sample.
+
+# **Q5 (1 pt.): Show the code you used to conduct the t-test.**
+```{r}
+t.test(catrate$cat.rate, mu = 2/7)
+```
+# **Q6 (1 pt.): State the null hypothesis of the test, in plain nontechnical English.**
+
+The null hypothesis of this t.test is that the true population mean based on our sample data is equal to 2/7. Even though our observed catrate has a mean of 0.54 our null hypothesis is asking how likely is it that we would get a mean of 0.54 if the overall larger population of all possible salamander catastrophe rates has a mean of 2/7.
+
+# **Q7 (1 pt.): Is this a one- or two-tailed test?**
+This is a two-tailed test.
+
+# **Q8 (2 pts.): What is the p-value from your t-test? Interpret the p-value as a false-positive rate using nontechnical English that a non-scientist would understand.**
+
+The p-value from this t-test is 0.012. This means that ~99% of the time we would expect to see a sample mean of 0.54 if the population mean is not equal to 2/7. Our false positive rate is 1.2%, meaning that 1.2% of the time just by chance alone we might get a really weird sample from a population (a population of all possible marbled salamander catastrophe rates) that has a sample mean of 0.54 when the population mean is actually 2/7.
+
+
+# **Q9 (1 pt.): What is the confidence interval for the difference between the null hypothesis and alternative hypothesis means? Did it include zero?**
+
+The 95% confidence interval is  0.3526250 - 0.7261295, it does not include zero. 
+
+# **Q10 (2 pts.): Considering the results from your t-test, did you conclude that there was strong evidence to reject the null hypothesis?**
+**Make sure you justify your answer using the output of the t-test.**
+Based on the low p-value (0.012) below an acceptable false positive rate of 5% and the confidence interval that does not include zero (if it included zero it would indicate that our underlying population is likely to have a true mean close to 2/7) I would conclude that there is strong evidence to reject the null hypothesis.
+
+# **Q11 (1 pt.): Show the code you used to conduct the test.**
+```{r}
+wilcox.test(catrate$cat.rate, mu = 2 / 7)
+```
+
+# **Q12 (1 pt.): Compare the p-value with the p-value you got from the t-test.**
+The p-value from the wilcox test (p = 0.0063) is much lower than the p-value from the t.test (p= 0.012)
+
+# **Q13 (2 pts.): Considering the results from your rank sum test, did you conclude that there was strong evidence to reject the null hypothesis?**
+Based on the very small p-value from the ranks sums test (p=0.0063) I would conclude there is strong evidence to reject the null hypothesis. A p-value this low indicates that there is very little chance (~0.6%) that we would get a sample with a mean of 0.54 if the true underlying population mean is 2/7.
+
+# **Q14 (1 pt.): Compare the overall conclusions you could draw from the results of the two tests.**
+
+The results of the two tests both indicate that the true catastrophe rate population mean is not equal to 2/7. This indicates that the catastrophe rate is not driven by the process of late-filling alone. 
+
+# **Q15 (1 pt.): Considering the numerical and graphical data exploration, which test do you think was more appropriate for these data?**
+ 
+Graphically the histogram of cat.rate does not look symmetrical around the mean indicating that it may not be normally distributed. Considering the results of the shapiro.test (cat.rate is likely not drawn from a normal population) and the small sample size of only 14 ponds it may be most appropriate to use the wilcox ranks sums test. The wilcox test may be a better fit because unlike the t.test it does not require that the sample mean come from a population with a normal distribution. With large enough sample sizes this assumption is met via the central limit theorem, however in this case the sample size is small.
+
+# **Q16 (2 pts.): Show the R-code you used to conduct tests of normality for the flipper lengths of Chinstrap and Adelie penguins.**
+```{r}
+#creating the datasets
+require(palmerpenguins)
+penguin_dat = droplevels(subset(penguins, species != "Gentoo"))
+dat_adelie = subset(penguin_dat, species == "Adelie")
+dat_chinstrap = subset(penguin_dat, species == "Chinstrap")
+
+#running the normality tests
+shapiro.test(dat_adelie$flipper_length_mm)
+shapiro.test(dat_chinstrap$flipper_length_mm)
+```
+# **Q17 (2 pts.): Interpret the test results. Do you conclude that the flipper lengths are normally-distributed for each species? Make sure your answers make reference to the test output.**
+
+Based on the high p-values in both shapiro tests (adelie = 0.72, chinstrap = 0.81) I would fail to reject the null hypothesis that the flipper length samples of the two species are drawn from normally distributed populations. Therefore, yes I would conclude that we have good evidence that flipper length is normally distributed in both species.
+
+# **Q18 (2 pts.): Save your figure to a file and include it in your report. Your figure needs to have appropriate dimensions such that the two histograms are not vertically stretched.**
+```{r}
+png(filename = here("images", "flipper_length_hists.png"), width = 900, height = 600)
+par(mfrow = c(1, 2))
+hist(dat_adelie$flipper_length_mm, main = "Histogram of Adelie Flipper Length", xlab = "Flipper Length (mm)")
+hist(dat_chinstrap$flipper_length_mm, main = "Histogram of Chinstrap Flipper Length", xlab = "Flipper Length (mm)")
+dev.off()
+```
+Image uploaded with assignment as a separate file because I did not know how to embed a saved .png image into an rmarkdown.
+
+# **Q19 (2 pts.): State the alternative hypothesis of the test, in plain nontechnical English.**
+The alternative hypothesis of a t.test comparing the flipper length of Adelie and Chinstrap penguins is that populations these samples were drawn from have different mean flipper lengths. Basically the alternative hypothesis is that Adelie and Chinstrap penguins on average don't have the same size flippers.
+
+# **Q20 (1 pt.): Include the code you used to conduct the t-test**
+```{r}
+t.test(data = penguin_dat, flipper_length_mm ~ species)
+```
+

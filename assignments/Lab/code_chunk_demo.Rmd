@@ -1,0 +1,43 @@
+---
+title: "code chunk demo"
+author: "Aliza Fassler"
+date: "10/20/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_penguin_data, echo=TRUE, eval=TRUE}
+require(palmerpenguins)
+head(penguins)
+
+```
+
+```{r simple pairplot1, fig.width=4, fig.asp=1/1.5}
+plot(penguins[, 3:5])
+```
+
+
+###aspect 1 = square
+```{r simple pairplot2, fig.width=4, fig.asp=1}
+plot(penguins[, 3:5])
+```
+#echo = false  = only shows results (output) not code
+#eval = false = does the opposite
+
+# tabsets demo {.tabset .tabset-pills}
+## Tab 1
+Content goes here
+
+## Tab 2
+```{r flipper length histogram, fig.asp=1, echo=FALSE}
+hist(penguins$flipper_length_mm)
+```
+
+## Tab 3
+
+# Next section 
+
+

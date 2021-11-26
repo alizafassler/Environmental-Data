@@ -1,0 +1,207 @@
+---
+title: "Lab 5"
+author: "Aliza Fassler"
+date: "10/6/2021"
+output: html_document
+---
+I worked with Justin Roch and Sonja Glasser on this lab.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(here)
+ salamander_disp_data = read.csv(here("data", "dispersal.csv"))
+
+ricker_fun = function(x, a, b) 
+{
+  return(a * x * exp(-b * x))
+}
+
+  line_point_slope = function(x, x1, y1, slope)
+  {
+    get_y_intercept = 
+      function(x1, y1, slope) 
+        return(-(x1 * slope) + y1)
+    
+    linear = 
+      function(x, yint, slope) 
+        return(yint + x * slope)
+    
+    return(linear(x, get_y_intercept(x1, y1, slope), slope))
+  }
+```
+
+```{r, include=FALSE}
+curve(
+  ricker_fun(x, 1, 1), 
+  from = 0, to = 5, add = FALSE, 
+  main = "Ricker function: a = 1, b = 1",
+  ylab = "f(x)", xlab = "x")
+```
+##**Q1 (2 pts.): Show the R code you used to create exp_fun()**
+
+#Making exponential function
+```{r}
+exp_fun = function(x, a, b) 
+{
+  return(a * exp(-b * x))
+}
+```
+
+##ploting the exponential function
+```{r, include=FALSE}
+curve(
+  exp_fun(x, 1, 1), 
+  from = 0, to = 10, add = FALSE, 
+  main = "Exponential function: a = 1, b = 1",
+  ylab = "f(x)", xlab = "x")
+```
+
+##testing the function
+```{r, include=FALSE}
+curve(
+  exp_fun(x, 2.2, 1/15), add = FALSE, from = 0, to = 50,
+  ann = FALSE, axes = TRUE, ylab = "f(x)"); box()
+```
+##**Q2 (4 pts.): In your lab report, include a single figure containing four negative exponential curves with these parameter values:**
+
+**curve 1: a = 1.9, b = 0.1, line color = black, line texture = solid**
+**curve 2: a = 1.9, b = 0.3, line color = black, line texture = dotted**
+**curve 3: a = 1.2, b = 0.2, line color = red, line texture = solid**
+**curve 4: a = 1.2, b = 0.4, line color = red, line texture = dotted**
+
+```{r}
+{curve(
+  exp_fun(x, 1.9, 0.1),  from = 0, to = 50,
+  add = FALSE, 
+  main = "Exponential Function",
+
+  ann = FALSE, axes = TRUE, ylab = "f(x)"); box()
+
+curve(exp_fun(x, 1.9, 0.3), add = TRUE, lty = 3)
+
+curve(exp_fun(x, 1.2, 0.2), add = TRUE, col="red")
+
+curve(exp_fun(x, 1.2, 0.4), add = TRUE, lty = 3, col="red")
+}
+```
+
+##**Q3 (2 pts.): Observe how the curves vary as you change the two parameters’ values.**
+**Qualitatively describe what happens to the curve as you vary parameter a**
+
+
+Parameter a determines the intial height/ start point on the y-axis of the exponential curve. Higher values of parameter a cause higher initial values of the curve. 
+
+
+##**Q4 (2 pts): Observe how the curves vary as you change the two parameters’ values.**
+**Qualitatively describe what happens to the curve as you vary parameter b**
+
+Parameter b determines how steeply the curve declines. Higher values cause the curve to decline more steeply, lower values cause a more gradual decline in the y-values. 
+
+
+
+##**Q5: (4 pts.): In your lab report, include a single plot containing 6 Ricker curves with these parameter values:**
+
+**curve 1: a = 25, b = 0.1, line color = black, line texture = solid**
+**curve 2: a = 20, b = 0.2, line color = black, line texture = dotted**
+**curve 3: a = 10, b = 0.2, line color = black, line texture = dotted**
+**curve 4: a = 75, b = 0.3, line color = red, line texture = solid**
+**curve 5: a = 50, b = 0.3, line color = red, line texture = dotted**
+**curve 6: a = 40, b = 0.3, line color = red, line texture = dotted**
+
+```{r}
+{curve(
+  ricker_fun(x, 25, 0.1), 
+  from = 0, to = 5, add = FALSE, 
+  main = "Ricker function",
+  ylab = "f(x)", xlab = "x")
+  curve(ricker_fun(x, 20, 0.2), add = TRUE, lty = 3)
+    curve(ricker_fun(x, 10, 0.2), add = TRUE, lty = 3)
+     curve(ricker_fun(x, 75, 0.3), add = TRUE, col = "red")
+     curve(ricker_fun(x, 50, 0.3), add = TRUE, lty = 3, col = "red")
+     curve(ricker_fun(x, 40, 0.3), add = TRUE, lty = 3, col = "red")}
+```
+
+
+##**Q6 (2 pts.): Observe how the curves vary as you change the two parameters’ values. Qualitatively describe what happens to the curve as you vary parameter a**
+
+As you vary parameter a the rate at which the curve increases (slope) changes. At higher values of parameter a the curve increases to higher y-values more rapidly. For example a curve with parameter a = 50 has a higher y-value at x= 1 compared with a curve with parameter a = 40.  
+
+##**Q7 (2 pts): Observe how the curves vary as you change the two parameters’ values. Qualitatively describe what happens to the curve as you vary parameter b**
+Parameter b seems to determine the maximum of the curve/ when the curve starts to decrease. High values of parameter b cause a decrease in y-values at lower x-values. 
+
+
+##**Q8 (2 pts): Linear Model.Provide the values of the slope, x1, and y1 parameters you chose. Briefly describe how you chose the values.**
+
+I chose:
+x = 0.2
+y = 800
+slope = -0.0005
+
+I chose my x and y based on what looked like the center point of the data. I chose a negative slope because the data looks like it has a slightly decreasing trend. I chose a very, very small number for slope because the slope is very shallow.
+
+##**Q9 (2 pts): In your lab report, include a scatterplot of the salamander data with your fitted linear model.**
+```{r}
+plot(salamander_disp_data$disp.rate.ftb ~ salamander_disp_data$dist.class, main = "Marbled Salamanders - First Time Breeders
+     Bad Linear Model", xlab = "Distance Class", ylab = "Standardized Dispersal Rate")
+
+guess_x = 800
+guess_y = 0.2
+guess_slope = -0.0005
+curve(line_point_slope(x, guess_x, guess_y, guess_slope), add = T)
+```
+
+
+##**Q10 (2 pts): Exponential Model. Provide the values of the a and b. Briefly describe how you chose the values.**
+I chose: 
+a = 1
+b = 0.003
+
+I chose a value for parameter a that was high on the y-axis scale to indicate that at low x-values the curve should start very high. I chose a very low parameter b because the dispersal rate values decline slowly.
+
+##**Q11 (2 pts): In your lab report, include a scatterplot of the salamander data with your fitted exponential model.**
+```{r}
+plot(salamander_disp_data$disp.rate.ftb ~ salamander_disp_data$dist.class, main = "Marbled Salamanders - First Time Breeders
+     Exponential Model", xlab = "Distance Class", ylab = "Standardized Dispersal Rate")
+{curve(exp_fun(x, 1, 0.003), add = TRUE)}
+```
+
+##**Q12 (2 pts): Ricker Model Provide the values of the a and b. Briefly describe how you chose the values.**
+I chose:
+a = 0.0075
+b = 1/325
+
+I set my b parameter first based on the highest observed value and the form of the ricker equation. I experimented with my a value until the slope increased and decreased at a rate that closely matched the data. 
+
+##**Q13 (2 pts): In your lab report, include a scatterplot of the salamander data with your fitted ricker model.**
+```{r}
+plot(salamander_disp_data$disp.rate.ftb ~ salamander_disp_data$dist.class, main = "Marbled Salamanders - First Time Breeders
+     Ricker Model", xlab = "Distance Class", ylab = "Standardized Dispersal Rate")
+ curve(ricker_fun(x, 0.0075, 1/325), add = TRUE)
+
+```
+
+
+##**Q14 (4 pts): Show the R code you used to create your data frame of model residuals.**
+
+```{r}
+salamander_disp_data$linepred = line_point_slope(salamander_disp_data$dist.class, guess_x, guess_y, guess_slope)
+salamander_disp_data$resids_linear = salamander_disp_data$linepred - salamander_disp_data$disp.rate.ftb
+
+salamander_disp_data$exp_pred = exp_fun(salamander_disp_data$dist.class, 1, 0.003)
+salamander_disp_data$resids_exp = salamander_disp_data$exp_pred - salamander_disp_data$disp.rate.ftb
+
+salamander_disp_data$ricker_pred = ricker_fun(salamander_disp_data$dist.class, 0.0075, 1/325)
+salamander_disp_data$resids_ricker = salamander_disp_data$ricker_pred - salamander_disp_data$disp.rate.ftb 
+
+```
+
+
+##**Q15 (3 pts.): In your lab report, include histograms of the residuals for each of your three models. You may create a single figure with three panels, or include three separate figures.**
+```{r}
+par(mfrow = c(1,3))
+hist(salamander_disp_data$resids_linear, xlab = "Residuals", main = "Linear Model Residuals" )
+hist(salamander_disp_data$resids_exp, xlab = "Residuals", main = "Exponential Model Residuals" )
+hist(salamander_disp_data$resids_ricker, xlab = "Residuals", main = "Ricker Model Residuals")
+```
+

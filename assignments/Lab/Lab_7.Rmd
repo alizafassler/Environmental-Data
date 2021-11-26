@@ -1,0 +1,188 @@
+---
+title: "Lab 7"
+author: "Aliza Fassler"
+date: "10/20/2021"
+output: html_document
+---
+I worked with Sonja Glasser & Justin Roch on this lab.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(here)
+moths = read.csv(here("data", "moths.csv"))
+require(palmerpenguins)
+require(boot)
+```
+
+```{r, include=FALSE}
+## calculating mean bill length gentoo penguins
+sse_mean = function(x)
+ { 
+  y = na.omit(x)
+  return(sd(y)/sqrt(length(y)))
+}
+
+dat_pen = subset(penguins, species == "Gentoo")
+sse_mean(dat_pen$bill_length_mm)
+```
+
+
+# **Q1 (1 pt.): What is the sample size, n? Show the code you used for the calculation and remember to check for missing data.**
+
+```{r}
+bill_no_na_gen<-na.omit(dat_pen$bill_length_mm)
+length(bill_no_na_gen)
+```
+
+# **Q2 (1 pt.): What is the sample standard deviation? Show the code you used for the calculation.**
+```{r}
+sd(bill_no_na_gen)
+```
+# **Q3 (2 pts.): What are the critical t-values? Show the R code you used for the calculation.**
+```{r}
+crit_upper<-qt(0.05/2, 122, lower.tail=FALSE)
+crit_lower<-qt(0.05/2, 122, lower.tail=TRUE)
+crit_upper
+crit_lower
+```
+
+# **Q4 (1 pt.): What is the sample standard error? Show the R code you used for the calculation.**
+```{r}
+sse_mean = function(x)
+ { 
+  y = na.omit(x)
+  return(sd(y)/sqrt(length(y)))
+}
+gen_se <-sse_mean(bill_no_na_gen)
+gen_se
+```
+# **Q5 (2 pts.): Finally, construct the CI and show the R code you used for the calculation.**
+```{r}
+upper_rad<-crit_upper*gen_se
+upper_rad
+lower_rad<-crit_lower*gen_se
+lower_rad
+mean <-mean(bill_no_na_gen)
+mean+upper_rad
+mean+lower_rad
+```
+$47.505 \pm 0.550$
+
+# **Q6 (1 pt.): What is the CI?**
+46.97236-48.06020
+
+# **Q7 (1 pt.): Show the r code you used to call the boot() function.**
+```{r}
+require(boot)
+```
+
+
+```{r, include=FALSE}
+boot_mean = function(x, i)
+{
+  return(mean(x[i], na.rm = TRUE))
+}
+
+```
+
+
+```{r}
+myboot = 
+  boot(
+    data = bill_no_na_gen,
+    statistic = boot_mean,
+    R = 10000)
+print(myboot)
+```
+# **Q8 (12 pts.): Show the r code you used to calculate the upper and lower 2.5% quantiles.**
+```{r}
+quantile(
+  myboot$t,
+  c(0.025, 0.975))
+```
+# **Q9 (5 pts.): Show your completed rarefaction_sampler() function.**
+```{r, include=FALSE}
+moth_dat = moths[,-1]
+head(moth_dat)
+```
+
+
+
+```{r}
+# This clears the current R session's environment
+rm(list = ls())
+
+# Re-read my data:
+moths = read.csv(here("data", "moths.csv"))
+moth_dat = moths[,-1]
+
+rarefaction_sampler = function(input_dat, n_iterations)
+{
+  n_input_rows = nrow(input_dat)
+
+  results_out = matrix(
+    nrow = n_iterations,
+    ncol = n_input_rows)
+
+  # The outer loop: runs once for each bootstrap iteration.  index variable is i
+  for(i in 1:n_iterations)
+  {
+    # The inner loop: simulates increasing sampling intensity
+    # Sampling intensity ranges from 1 site to the complete count of
+    # sites in the input data (n)
+    for(j in 1:n_input_rows)
+    {
+      # sample the input data row indices, with replacement
+      rows_j = sample(n_input_rows, size = j, replace=TRUE)
+
+      # Creates a new data matrix
+      t1 = input_dat[rows_j, ]
+
+      # Calculates the column sums
+      t2 = apply(t1, 2, sum)
+
+      # Counts the number of columns in which any moths were observed
+      results_out[i, j] = sum(t2 > 0)
+    }
+  }
+  return(results_out)
+}
+
+rarefact = rarefaction_sampler(moth_dat, 100)
+head(rarefact)
+```
+
+# **Q10 (1 pt.): What did you find most difficult about building the function?**
+
+The most challenging part was de-bugging and trying to see the differences between versions 1 and 2. It is hard to follow the meaning of complex functions sometimes. I ended up just trying to look at small pieces one at a time to see where it was calling something and where something was not defined within the function.
+
+# **Q11 (4 pts.): Show the code you used to perform the simulations and construct the curve.**
+```{r}
+moths = read.csv(here("data", "moths.csv"))
+rarefact = rarefaction_sampler(moths[,-1], 10000)
+```
+
+```{r}
+rare_mean = apply(rarefact, 2, mean)
+rare_quant = apply(rarefact, 2, quantile, probs=c(0.025, 0.975))
+rare = t(rbind(rare_mean, rare_quant))
+```
+
+# **Q12 (4 pts.): Include your rarefaction curve plot in your report. Show the R-code you used to create your plot.**
+```{r}
+matplot(
+  rare,
+  type='l',
+  col= c("blue", "purple", "red"), lwd = 6,
+  xlab='Number of sampling plots',
+  ylab='Species richness',
+  main='Moths Rarefaction Curve')
+
+legend(x=18, y=7.5,
+  legend=c('mean','2.5%','97.5%'),
+  lty=c(1,2,4),col= c("blue", "purple", "red"), lwd = 6, inset=c(.1,.1), title = "Legend", title.col = "slateblue4")
+```
+
+# **Q13 (2 pts.): About how many sites should you visit if you want to see all of the moth species? Explain your reasoning using your rarefaction curve figure.**
+
+If you wanted to see all of the moth species you would need to visit at least ~15 plots because that is the point at which the species richness levels off. If you visit over 15 plots you are likely to see all of the species. 
