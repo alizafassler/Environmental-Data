@@ -1,0 +1,13 @@
+---
+title: "Aliza's Project Homepage"
+author: "Aliza Fassler"
+date: "11/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Welcome to Aliza's Analysis of Environmental Data class page. 
