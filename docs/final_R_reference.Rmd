@@ -1,0 +1,323 @@
+---
+title: "R Reference Guide"
+author: "Aliza Fassler"
+date: "12/2/2021"
+output: html_document
+---
+
+I worked with Hazel Ortiz, Justin Maynard, Justin Roch, Min Hein Htike and Briantama Asmara on this assignment.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R Reference Guide {.tabset .tabset-pills}
+
+## Loading Data and Packages
+### library() and require()
+The functions library() and require() are both used to load and attach add on packages to R that either contain data or let you do more things (run different functions, graph etc.) in R. require() first checks to see if a package is already loaded, it returns a FALSE message rather than an error if the package does not exist. 
+
+To load a package such as palmerpenguins or here you can use either library or require() although it is often preferable to use require() especially if loading inside a function. 
+
+```{r}
+#Example of using library()
+library(palmerpenguins)
+
+#Example of using require()
+require(here)
+```
+### here() and read.csv()
+In order to read in a data file of your own making, or from a source other than an R package you need to save it as a .csv and you use read.csv(). The here() function (from the here package required above) helps you tell R which directories to look in for a data file. It lets you do this without changing your working directory.
+
+```{r}
+#Example of using here() and read.csv()
+
+ ginkgo = read.csv(here("data", "ginkgo_data_2021.csv"))
+```
+
+
+## Data Structures
+
+### c()
+
+The function c() combines or concatenates its arguments into a vector (a 1-dimensional data structure consisting of 1 or more elements).
+
+* All of the elements must be of the same type.
+* I can’t combine character and numeric types in the same call to c()
+
+Here’s two examples using numeric and character data types:
+
+```{r}
+## Create a vector of numbers:
+num_vec  = c(1, 4, 8, 9, 13)
+
+## Create a vector of characters:
+char_vec = c("a", "fish", "data is cool")
+```
+
+
+I can show the contents of a vector by typing the name of the vector, or using the print() function.
+```{r}
+## Typing the name of the vector into the console prints the contents
+num_vec
+
+```
+
+```{r}
+## The print() function accomplishes the same task:
+print(char_vec)
+```
+
+### length()
+
+The length() function allows you to get or set the length of vectors and factors or columns in data frames. Getting the length is useful for counting the number of entries in a column of a data frame, which might help you figure out the number of samples in your data.
+
+```{r}
+#Example of counting the number of entries in a column of a dataframe
+length(ginkgo$max_width)
+```
+### matrix()
+The matrix function helps you turn data into a matrix with a specified number of rows and columns.This function has three arguments that let the function know how the elements need to be arranged. The first argument is the collection of elements that will be arranged by the function. You can use a vector as the first element.The second argument nrow, indicates how many rows the matrix should have and the third argument ncol indicates the number of columns. The fourth argument byrow tells R how to populate the data. The default is to populate the matrix by row, if you set byrow = FALSE it will instead populate by column. Note the number of rows should be a multiple of your data length.
+.
+```{r}
+#Example of using matrix
+#First I am using c() to create a vector of all the numbers between 1 and 12
+vec_4<-c(1:12)
+vec_4
+#building a matrix with 3 rows and 4 columns that populates by row
+mat_1<-matrix(vec_4, byrow = TRUE, nrow = 3, ncol = 4)
+mat_1
+#building a matrix with 3 rows and 4 columns that populates by column
+mat_2<-matrix(vec_4, byrow = FALSE, nrow = 3, ncol = 4)
+mat_2
+```
+
+### data.frame()
+Data frames are a kind of matrix that can hold multiple forms of data including, character, integer and logical in different columns.You can create a data.frame by using the data.frame() function or by reading in a csv, using read.csv (a variation of read.table that reads a table file and turns it into a data frame). data.frame() is most useful when you want to create your own data frame within R.
+```{r}
+#using data.frame() to join two different types of vectors into a matrix
+my_vec = rep(1:3, 5)
+my_bool_vec<-my_vec == 3
+my_dat=data.frame(my_vec, my_bool_vec)
+my_dat
+```
+
+With data.frame() you can also easily name the rows in your data frame using row.names
+```{r}
+#using row.names 
+num_vec  = c(1, 4, 8, 9, 13)
+num_matrix <- matrix(num_vec, nrow= 5, ncol= 3)
+data.frame(num_matrix, row.names = c("row_1", "row_2", "row_3", "row_4", "row_5"))
+
+
+```
+### ncol()
+ncol counts the number of columns in a data frame, vector or array.
+```{r}
+#Example of using ncol()
+ncol(ginkgo)
+```
+
+
+### nrow()
+nrow counts the number of rows in a data frame, vector or array.
+```{r}
+nrow(ginkgo)
+```
+
+### dim()
+dim counts the number of rows and columns in a data frame, vector or array (i.e. the dimensions)
+```{r}
+dim(ginkgo)
+```
+
+## Subsetting
+
+### $ subsetting
+
+Typing in a data frame name and then a dollar sign and then a column name within a data frame will allow you to select only that column.This method lets you subset by column name.
+```{r}
+#example of subsetting the max_width column from the ginkgo data frame
+ginkgo$max_width
+```
+### [] bracket subsetting (subset by position)
+Brackets allow you to select elements from a particular position in a data frame. The first number in the bracket tells R which row you want to select, the second number tells R which column to select.
+
+```{r}
+#selecting the first row of the ginkgo data
+ginkgo [1,]
+```
+
+```{r}
+#select the element in row 2, column 3
+ginkgo[2,3]
+```
+
+
+```{r}
+#select the 3rd column of the ginkgo data
+ginkgo[,3]
+```
+### subset()
+Subset allows you to select entries that match a particular value from a vector, matrix or data frame.The first term is the data frame (or vector or matrix) you want R to pull from and the second term tells it how to subest using a boolean operator. 
+```{r}
+#Example of subsetting all of the Adelie penguin entries and making it into a new data frame
+penguin_adelie = subset(penguins, species == "Adelie")
+```
+
+## Numerical Data Exploration
+
+### summary()
+Summary automatically generates a number of summary statistics for the object you give it. If you run summary on a data frame it will give you summary statistics for each column (min, max, quantiles,median and mean). You can also use summary to generate a coefficient table from lm (linear models) and glm (generalized linear models).
+```{r}
+#Example of using summary with the ginkgo data frame
+summary(ginkgo)
+```
+```{r}
+#Example of using summary on a lm to generate a coefficient table
+summary(lm(data = ginkgo, seeds_present ~ max_width))
+```
+### mean()
+Calculates the mean of a numeric vector such as the column of a data frame. You can add the term na.rm = TRUE to have the function remove missing values from the vector before it calculates a mean.
+
+```{r}
+#example of using mean() on the palmerpenguins body mass column
+mean(penguins$body_mass_g, na.rm = TRUE)
+```
+### sd()
+Calculates the standard deviation of a numeric vector such as a column in a data frame. Similar to mean() you can add the term na.rm = TRUE to have the function remove missing values from the vector before it calculates the standard deviation.
+```{r}
+#example of finding the standard deviation of the palmerpenguins body mass column 
+sd(penguins$body_mass_g, na.rm = TRUE)
+```
+
+
+## Graphical Data Exploration 
+### plot()
+Creating a scatterplot of ginkgo max leaf depth (x) and max leaf width (y) using the following arguments to shape the appearance of the plot:
+
+col = determines the color of the plotted points. The color black is denoted by col = 1 in most plotting functions, red is denoted by col = 2 , and green is denoted by col = 3 you can also use predefined color names or hexadecimal codes in R (e.g., "red" or "chocolate") here is a link to a list of name colors in R: http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+pch = changes the symbol used for plotting points. The default pch = 1 which is an empty circle. Here is a link to more pch choices:http://www.sthda.com/english/wiki/r-plot-pch-symbols-the-different-point-shapes-available-in-r
+
+cex = number indicating the amount to which plotting text and symbols should be scaled relative to the default. 1=default, 1.5 is 50% larger, 0.5 is 50% smaller, etc.
+
+main = sets the main title of the plot (e.g. main = "My Main Title")
+
+xlab = sets the title of the x-axis (e.g. xlab = "X-axis Title")
+
+yab = sets the title for the y-axis. 
+
+xlim = sets the upper and lower limits of the x axis. (e.g. c(0, max(ginkgo$max_depth)+20))
+
+ylim =  used to set limits of the y-axis
+
+```{r}
+#scatterplot example
+plot(x = ginkgo$max_depth, y = ginkgo$max_width, 
+     xlab = "Max depth", ylab = "Max width", main = "Ginkgo leaves", col = "2", pch = 21, cex = 1.5, xlim = c(0, max(ginkgo$max_depth)+20), ylim = c(0, max(ginkgo$max_width)+20))
+```
+
+### hist()
+This function creates a histogram from a vector of values such as a column in a data frame. The argument breaks = essentially tells R how many bins (bars) you want the data broken into. In the example below "breaks = 4" tells R to place the data into four frequency bins, this allows us to more clearly see patterns in the frequency of data points. Breaks can also be a vector, function or character string. You can use the arguments main = , xlab = and ylab = as described above for plot(). 
+```{r}
+#example histogram of penguin flipper lengths
+require(palmerpenguins)
+hist(penguins$flipper_length_mm, xlab = "Flipper length", main = "Penguin Flipper Length", breaks = 4)
+```
+
+### boxplot()
+boxplot() creats a box and whisker plot from a numeric vecotor such as a column in a data frame.
+```{r}
+#example of a simple boxplot of petiole length
+boxplot(ginkgo$petiole_length, main = "Ginkgo Petiole Length")
+```
+
+
+```{r}
+#example of a conditional boxplot  
+boxplot(data = ginkgo, max_width ~ seeds_present, "Max width by Seeds present", xlab = "Seeds present", ylab = "Max Leaf Width", main = "Ginkgo Conditional Box Plot")
+```
+
+### Creating a multi- panel figure par(mfrow = c(_, _)) 
+Allows you to set the number of panels in one figure, you specify the number of rows and columns within c(), the number of rows is the first number and the number of columns is the second number. Par() sets the parameters of a plot and mfrow = c() specifies the number of subplots needed. 
+```{r fig.with = 16, fig.height=16, fig.asp=0.6}
+#telling R to display the next set of plots as one figure with 2 plots per column
+par(mfrow = c(2,2))
+
+# I will use the palmerpenguins data to create histograms of penguin body mass, bill depth, bill length and flipper length in one figure
+
+hist(penguins$body_mass_g, main = "Histogram of Penguin Body Mass", xlab = "Penguin Body Mass (g)")
+hist(penguins$bill_length_mm, main = "Histogram of Penguin Bill Length ", xlab = "Penguin Bill Length (mm)" )
+hist(penguins$bill_depth_mm, main = "Historgram of Penguin Bill Depth", xlab = "Penguin Bill Depth (mm)")
+hist(penguins$flipper_length_mm, main = "Historgram of Penguin Flipper Length", xlab = "Penguin Flipper Length (mm)")
+
+```
+
+
+## Distribution Functions
+
+### dnorm, pnorm, qnorm and rnorm are all based on the normal distribution
+
+### pnorm()
+pnorm calculates the cumulative density function or the proportion of a normally distributed population that is less than or equal to a given x value (F(x) = P(X <= x)) given a mean and a standard  deviation (sd). It essentially calculates the area under a normal density curve before and equal to your x value. If you set lower.tail = FALSE than it gives the proportion of a normally distributed population above a given x value F(x) = P(X>x) i.e. the upper tail of a probability distribution curve.
+```{r}
+# example of using pnorm
+prob = pnorm(13, mean = 15, sd = 4)
+prob
+
+#example of using pnorm lower.tail = FALSE
+
+prob_lower_false = pnorm(13, mean = 15, sd = 4, lower.tail = FALSE)
+prob_lower_false
+
+# these probabilities sum to 1
+prob + prob_lower_false
+
+```
+
+### dnorm()
+dnorm gives you the probability density function of the normal distribution. Basically it tells you the height of x on the normal density curve or the relative probability of observing a given x value. Like pnorm it requires an x value, a mean and a sd.
+```{r}
+#example of using dnorm
+#the relative probability of observing a value of 13 is:
+dnorm(13, mean = 15, sd = 4)
+```
+
+### qnorm()
+qnorm calculates the x value for a given quantile (i.e. percentile)  in a normal distribution.It requires an quantile value, a mean and a sd.
+```{r}
+#example of using qnorm
+qnorm(0.309, mean = 15, sd = 4)
+
+#13 is approximately the 30.9th percentile, meaning that approximately 30% of the values in a normally distributed population with a mean of 15 and a standard deviation of 4 fall below 13. This makes sense given that the pnorm example above calculated that the area under the curve less than or equal to  13 is approximately 30%. 
+```
+
+### dbinom, pbinom and qbinom are all based on the binomial probability distribution
+
+### dbinom()
+dbinom calculates the probability mass function i.e. the probability of observing an exact value of x (ex. a count of the number of plots sampled with birds present in them) in a binomial distribution. It requires an x value, a size (i.e. number of trials) and a probability.
+
+```{r}
+#example of using dbinom 
+#Say I was searching plots for birds and I know that I encounter a bird in about 2 out of every 3 plots (probability). I have 10 plots I am searching and I encounter birds in 5 of my plots. What is the probability of me observing birds in exactly 5 (x) out of these 10 (size) patches?
+
+dbinom(5, 10, 2/3 )
+
+```
+### pbinom()
+pbinom calculates the cumulative mass function i.e. the probability of observing a value (ex. a count of plots with birds) less than or equal to x in a binomial distribution (F(x) = P(X <= x)). It requires an x value, a size (i.e. number of trials) and a probability.
+```{r}
+#example of using pbinom
+#the probability of observing 5 or fewer plots with birds is:
+pbinom(5, 10, 2/3)
+```
+### qbinom()
+qbinom calculates the quantile function i.e. it gives you an x value for a percentile in a binomial distribution. It requires a percentile value, a size (i.e. number of trials) and a probability.
+```{r}
+#example of using qbinom to calculate the 5th quantile of a binomial distribution with 10 trials (plots visited) and 2/3 probability of observing a bird in each plot
+qbinom(0.05, 10, 2/3)
+
+```
+
+

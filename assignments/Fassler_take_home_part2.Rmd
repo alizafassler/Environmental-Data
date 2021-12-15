@@ -1,0 +1,155 @@
+---
+title: "Fassler_take_home_part_2"
+author: "Aliza Fassler"
+date: "12/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+require(here)
+delomys = read.csv(here("data", "delomys.csv"))
+```
+
+
+```{r}
+#using summary
+summary(delomys$body_mass)
+
+summary(delomys$body_length)
+
+```
+```{r}
+#preforming normality test
+shapiro.test(delomys$body_mass)
+shapiro.test(delomys$body_length)
+```
+```{r fig.height=9, fig.width=10, fig.asp=0.55}
+#body mass scatterplot
+plot(data = delomys, body_length ~ body_mass, main = "Scatterplot of Body mass vs Body length", xlab = "Body Mass", ylab = "Body Length" )
+```
+
+```{r}
+#Histogram of body mass
+hist(delomys$body_mass, main = "Historgram of Body Mass", xlab = "Body Mass")
+```
+```{r}
+#histogram of body length
+hist(delomys$body_length, main = "Historgram of Body Length", xlab = "Body Length")
+```
+```{r}
+#A conditional boxplot of body mass, conditioned on species (column binomial)
+
+boxplot(data = delomys, body_mass ~ binomial, ylab = "Body Mass", xlab = "Species", main = "Body Mass Conditioned on Species")
+```
+```{r}
+#A conditional boxplot of body mass, conditioned on sex 
+boxplot(data = delomys, body_mass ~ sex, ylab = "Body mass", xlab = "Sex", main = "Body Mass Conditioned on Sex")
+```
+```{r}
+#A conditional boxplot of body mass, conditioned on both species and sex FIX AXIS LABEL
+boxplot(data = delomys, body_mass ~ sex*binomial, ylab = "Body mass", xlab = "", main = "Body Mass Conditioned on Sex and Species", names = c("Delomys dorsalis\nfemale", "Delomys dorsalis\nmale", "Delomys sublineatus\nfemale", "Delomys sublineatus\nmale"))
+
+
+```
+
+
+## Q1 (2 pts.): Qualitatively describe the relationship between body mass and length.
+**Does the relationship seem linear, curved, nonexistent?**
+
+Overall the relationship between delomys body mass and length appears relatively linear with a slight curve. As body mass increases to about 30 length increases rapidly, above a body mass of 30 the slope of the line is slightly less steep. There are also a number of outliers that don't follow the overall trend.
+
+##Q2 (2 pts.): Qualitatively describe the shapes of the histograms.
+**Do the data appear normally-distributed? Explain why or why not.**
+The delomys body mass data appears close to normally distributed as it is unimodal, however it is not perfectly symetrical with a higher than expect frequency of body masses around 30-40. The delomys body length data is very un-symetrical and left skewed. Both distributions are likely non-normal. 
+
+##Q3 (3 pts.): Using both the histograms and normality tests, do you think the (unconditioned) body masses and body length are normally-distributed?
+**Contrast your visual assessment of normality to the results of the numerical normality tests.**
+
+Based on the un-symmetrical histogram of body mass and the significant p-value of the shapiro test (which indicates the data distribution is likely different than normal) I do not think that the body mass data is normally distributed. Similarly, based on the left skewed histogram of the body length data and the significant p-value of the shapiro test I do not think that the body length data has a normal distribution. 
+
+
+##Q4 (2 pts.): Examine the conditional boxplots. Describe any graphical evidence you see for body mass differences based on species and/or sex.
+
+Both of the conditional box plots (mass condition on sex and mass conditioned on sex and species) males of both species have a slighly higher median body mass. The difference in body mass is slightly more pronounced between female and male D. dosalis than female and male D. sublineatus. It looks like there may be significant difference in body mass between male D. dorsalis and female D. sublineatus because the median female D. sublineatus body mass falls below the spread of the male D. dorsalis data. 
+
+Dorsalis larger in general
+
+```{r}
+#Model building
+fit1 = lm(data = delomys, body_length ~ body_mass)
+fit2 = lm(data = delomys, body_mass ~ sex)
+fit3 = lm(data = delomys, body_mass ~ binomial)
+fit4 = lm(data = delomys, body_mass ~ sex + binomial)
+fit5 = lm(data =delomys, body_mass ~ sex * binomial)
+```
+
+```{r}
+#model residuals and normality tests
+
+shapiro.test(residuals(fit1))
+shapiro.test(residuals(fit2))
+shapiro.test(residuals(fit3))
+shapiro.test(residuals(fit4))
+shapiro.test(residuals(fit5))
+
+```
+
+```{r}
+#histograms of residuals
+hist(residuals(fit1))
+hist(residuals(fit2))
+hist(residuals(fit3))
+hist(residuals(fit4))
+hist(residuals(fit5))
+
+```
+
+##Q5 (2 pts.): What do you conclude about residual normality based on the numerical and graphical diagnostics?
+Based on the results of the shapiro tests on the model residuals, none of the models meet the normality of residuals assumption (all tests had a significant p-value). Graphically, Model 1 (mass and length) is has a very non-symetrical residual distribution, indicating that the residuals are not normal. The graphical diagnostics also show that the model residuals are slightly right skewed for all of the models that include sex or species. Skew indicates that the distribution of the residuals is not normal. Based on these analyses I would conclude that the residuals of these models are not normally distributed. 
+
+##Q6 (1 pt.): Are violations of the normality assumption equally severe for all the models?
+The violations of normality are not equally severe for all models. Model fit 2 (body mass ~ sex) had the highest p-value of the shapiro tests indicating that the residuals of this model have the highest chance (0.0002) of coming from a normally distributed population. 
+
+```{r}
+#creating coefficient tables
+knitr::kable(coef(summary(fit1)))
+knitr::kable(coef(summary(fit2)))
+knitr::kable(coef(summary(fit3)))
+knitr::kable(coef(summary(fit4)))
+knitr::kable(coef(summary(fit5)))
+```
+
+
+#Q7 (2 pts.): What is the magnitude of the mass/length relationship?
+The magnitude of the relationship between mass and length is the slope coefficient from model fit 1 (0.8755). For every unit increase of length mass increases by 0.8755 units.
+
+#Q8 (2 pts.): What is the expected body length of an an animal that weighs 100g?
+
+```{r}
+#The expected body length of an animal that weighs 100g is:
+
+y1 = 0.8754988*100 + 76.124656
+
+y1
+```
+#Q9 (2 pts.): What is the expected body length of an animal that weighs 0g?
+```{r}
+#The body length of an animal that weighs zero grams is:
+y2 = 0.8754988*0 + 76.124656
+
+y2
+
+```
+#Q10 (1 pt.): What is the base level for sex?
+The base case for the model of delomys body mass predicted by sex is female.
+
+#Q11 (1 pt.): What is the base level for binomial?
+The base case for the binomial delomys model is  D. dorsalis.
+
+#Q12 (1 pt.): Which sex is heavier?
+Based on the delomys body mass by sex model males are on average 2.78g heavier than females regardless of species. 
+
